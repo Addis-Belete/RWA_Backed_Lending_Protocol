@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "openzeppelin-contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract NFT is ERC721URIStorage {
     struct RWA {
@@ -56,8 +56,9 @@ contract NFT is ERC721URIStorage {
     {
         tokenId++;
         realWorldAssetDetails[tokenId] = RWA(_assetType, _value, block.timestamp, _owner);
-        _setTokenURI(tokenId, _tokenURI);
         _mint(_owner, tokenId);
+        _setTokenURI(tokenId, _tokenURI);
+
         emit RWAMinted(_owner, _value, _assetType, _tokenURI);
     }
 }
