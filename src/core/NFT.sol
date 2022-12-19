@@ -9,6 +9,8 @@ contract NFT is ERC721URIStorage {
         uint256 value;
         uint256 mintingDate;
         address owner;
+        bool isActive;
+        bool isInOurOffice;
     }
 
     enum AssetType {
@@ -67,7 +69,7 @@ contract NFT is ERC721URIStorage {
         checkAddress(_owner)
     {
         tokenId++;
-        realWorldAssetDetails[tokenId] = RWA(_assetType, _value, block.timestamp, _owner);
+        realWorldAssetDetails[tokenId] = RWA(_assetType, _value, block.timestamp, _owner, false, true);
         _mint(_owner, tokenId);
         _setTokenURI(tokenId, _tokenURI);
         emit RWAMinted(_owner, _value, _assetType, _tokenURI);
@@ -83,4 +85,28 @@ contract NFT is ERC721URIStorage {
         delete realWorldAssetDetails[tokenId];
         emit RWABurned(_tokenId);
     }
+
+    function transferFrom(address from, address to, uint256 _tokenId) external override onlyAdmin {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
+        realWorldAssetDetails[tokenId] storage rwa = realWorldAssetDetails[_tokenId];
+        rwa.owner = to;
+        _transfer(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 _tokenId) external override onlyAdmin {
+        safeTransferFrom(from, to, tokenId, "");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 _tokenId, bytes memory data) public override {
+        require(_isApprovedOrOwner(_msgSender(), _tokenId), "ERC721: caller is not token owner or approved");
+        realWorldAssetDetails[tokenId] storage rwa = realWorldAssetDetails[_tokenId];
+        rwa.owner = to;
+        _safeTransfer(from, to, tokenId, data);
+    }
+
+    /**
+     * If User wants to transfer his asset to another it is possible.
+     * 	If user finishes a repayment  the RWA doesn't burned it stored in different smart contract So that in
+     * 		another time if user wants to retake we can withdraw from this smart contract and make active the collaterals
+     */
 }
