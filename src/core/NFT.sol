@@ -46,7 +46,7 @@ contract NFT is ERC721URIStorage {
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Only called by admin");
+        require(msg.sender == admin, "Only admin");
         _;
     }
 
@@ -79,13 +79,13 @@ contract NFT is ERC721URIStorage {
      * @notice Removes or burns Asset
      * @dev Only called by the admin
      * @param _tokenId The Id of the token to be removed
+     *
+     * function burnRWA(uint256 _tokenId) external onlyAdmin {
+     *     _burn(tokenId);
+     *     delete realWorldAssetDetails[tokenId];
+     *     emit RWABurned(_tokenId);
+     * }
      */
-    function burnRWA(uint256 _tokenId) external onlyAdmin {
-        _burn(tokenId);
-        delete realWorldAssetDetails[tokenId];
-        emit RWABurned(_tokenId);
-    }
-
     function getRWADetails(uint256 _tokenId) external view returns (RWA memory) {
         return realWorldAssetDetails[_tokenId];
     }
