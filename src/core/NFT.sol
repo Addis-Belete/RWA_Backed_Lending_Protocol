@@ -21,7 +21,7 @@ contract NFT is ERC721URIStorage {
         Machinery
     }
 
-    mapping(uint256 => RWA) public realWorldAssetDetails; //AssetId -> RWA
+    mapping(uint256 => RWA) private realWorldAssetDetails; //AssetId -> RWA
     uint256 private tokenId;
     address private admin;
 
@@ -84,6 +84,10 @@ contract NFT is ERC721URIStorage {
         _burn(tokenId);
         delete realWorldAssetDetails[tokenId];
         emit RWABurned(_tokenId);
+    }
+
+    function getRWADetails(uint256 _tokenId) external view returns (RWA memory) {
+        return realWorldAssetDetails[_tokenId];
     }
 
     function transferFrom(address from, address to, uint256 _tokenId) public override onlyAdmin {
