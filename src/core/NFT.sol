@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.13;
+pragma solidity 0.8.9;
 
 import "openzeppelin-contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
@@ -86,22 +86,26 @@ contract NFT is ERC721URIStorage {
         emit RWABurned(_tokenId);
     }
 
-    function transferFrom(address from, address to, uint256 _tokenId) external override onlyAdmin {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
-        realWorldAssetDetails[tokenId] storage rwa = realWorldAssetDetails[_tokenId];
-        rwa.owner = to;
-        _transfer(from, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 _tokenId) external override onlyAdmin {
-        safeTransferFrom(from, to, tokenId, "");
-    }
-
-    function safeTransferFrom(address from, address to, uint256 _tokenId, bytes memory data) public override {
+    function transferFrom(address from, address to, uint256 _tokenId) public override onlyAdmin {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), "ERC721: caller is not token owner or approved");
-        realWorldAssetDetails[tokenId] storage rwa = realWorldAssetDetails[_tokenId];
+        RWA storage rwa = realWorldAssetDetails[_tokenId];
         rwa.owner = to;
-        _safeTransfer(from, to, tokenId, data);
+        _transfer(from, to, _tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 _tokenId) public override onlyAdmin {
+        safeTransferFrom(from, to, _tokenId, "");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 _tokenId, bytes memory data)
+        public
+        override
+        onlyAdmin
+    {
+        require(_isApprovedOrOwner(_msgSender(), _tokenId), "ERC721: caller is not token owner or approved");
+        RWA storage rwa = realWorldAssetDetails[_tokenId];
+        rwa.owner = to;
+        _safeTransfer(from, to, _tokenId, data);
     }
 
     /**
