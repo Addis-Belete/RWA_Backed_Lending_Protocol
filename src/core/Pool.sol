@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/token/ERC20/extensions/ERC4626.sol";
+import "../Interfaces/IReceiptToken.sol";
 
 contract Pool {
     /**
@@ -18,7 +18,14 @@ contract Pool {
      * @notice Loan Repayment period for 3 years User selects the interval;
      * @notice Loan repayment can be extended but interest increase by 2% every year for additional three years
      */
-    function deposit() external {}
+
+    IReceiptToken internal receiptToken;
+
+    constructor(address _receiptTokenAddress) {
+        receiptToken = IReceiptToken(_receiptTokenAddress);
+    }
+
+    function deposit(uint256 assets, address receiver) external {}
 
     function withdraw() external {}
 
