@@ -86,6 +86,8 @@ contract Pool {
 
     function claimInterest() external {}
 
+    function depositInterest() external {}
+
     function checkYourInterest() external {}
 
     function calculateInterest() private returns (uint256) {}
