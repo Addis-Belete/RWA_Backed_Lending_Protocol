@@ -25,11 +25,23 @@ contract Pool {
         receiptToken = IReceiptToken(_receiptTokenAddress);
     }
 
+    /**
+     * @notice Used to deposit Assets to the pool and get rewards
+     */
     function deposit(uint256 assets, address receiver) external {}
 
+    /**
+     * @notice Used to withdraw principal from the pool by redeming receipt token.
+     */
     function withdraw() external {}
 
+    /**
+     * @notice This function is used to borrow assets from the pool
+     */
     function borrow() external {}
 
+    /**
+     * @notice This function is used to repay the borrowed asset back to the protocol
+     */
     function repay() external {}
 }
