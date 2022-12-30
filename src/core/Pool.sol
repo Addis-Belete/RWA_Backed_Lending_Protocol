@@ -30,6 +30,7 @@ contract Pool {
      */
     function deposit(uint256 assets, address receiver) external {}
 
+    function depositWithPermint(uint256 assets, address receiver) external {}
     /**
      * @notice Used to withdraw principal from the pool by redeming receipt token.
      */
@@ -44,4 +45,10 @@ contract Pool {
      * @notice This function is used to repay the borrowed asset back to the protocol
      */
     function repay() external {}
+
+    /**
+     * @notice
+     */
+
+    function repayWithPermit() external {}
 }
