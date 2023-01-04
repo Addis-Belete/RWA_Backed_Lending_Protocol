@@ -8,7 +8,7 @@ contract NFT is ERC721URIStorage {
         AssetType assetType;
         uint256 value;
         uint256 mintingDate;
-        address owner;
+        address owner; //Not necessary...Will remove in the future
         bool isActive;
         bool isInOurOffice;
     }

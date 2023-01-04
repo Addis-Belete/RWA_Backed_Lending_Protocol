@@ -2,7 +2,8 @@
 pragma solidity 0.8.13;
 
 import "../Interfaces/IReceiptToken.sol";
-import "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import "./NFT.sol";
+import "openze ppelin-contracts/token/ERC20/IERC20.sol";
 
 contract Pool {
     /**
@@ -29,6 +30,7 @@ contract Pool {
     mapping(address => UserInfo) internal userInfo;
     IReceiptToken internal receiptToken;
     address internal underlying;
+    NFT internal asset;
 
     event AssetDeposited(address indexed from, uint256 amount);
 
@@ -39,9 +41,10 @@ contract Pool {
         _;
     }
 
-    constructor(address _receiptTokenAddress, address _underlying) {
+    constructor(address _receiptTokenAddress, address _underlying, address _nftAddress) {
         receiptToken = IReceiptToken(_receiptTokenAddress);
         underlying = _underlying;
+        asset = NFT(_nftAddress);
     }
 
     /**
@@ -71,7 +74,7 @@ contract Pool {
 
     function withdraw(address to, uint256 amount) external checkAddress(to) {
         require(receiptToken.balanceOf(to) >= amount, "Less amount");
-        calculateInterest();
+        // calculateInterest();
         //UserInfo storage _userInfo = userInfo[to];
         receiptToken.burn(to, amount);
         require(IERC20(underlying).transferFrom(address(this), to, amount), "Transfer failed");
@@ -81,7 +84,9 @@ contract Pool {
     /**
      * @notice This function is used to borrow assets from the pool
      */
-    function borrow() external {}
+    function borrow(address to, uint256 amount, uint256 itemId) external checkAddress(to) {
+        require(asset.ownerOf(itemId) == to, "Not Owner");
+    }
 
     /**
      * @notice This function is used to repay the borrowed asset back to the protocol
@@ -99,6 +104,8 @@ contract Pool {
     function depositInterest() external {}
 
     function checkYourInterest() external {}
+
+    function getLatestUnderlyingPrice() internal returns (uint256) {}
 
     function calculateInterest() private returns (uint256) {}
 }
