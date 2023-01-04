@@ -30,7 +30,9 @@ contract Pool {
     IReceiptToken internal receiptToken;
     address internal underlying;
 
-    event AssetDeposited(address from, uint256 amount);
+    event AssetDeposited(address indexed from, uint256 amount);
+
+    event AssetWithdrawed(address indexed to, uint256 amount);
 
     modifier checkAddress(address _address) {
         require(_address != address(0), "Invalid address");
@@ -46,7 +48,7 @@ contract Pool {
      * @notice Used to deposit Assets to the pool and get rewards
      * Everytime user deposited The initail balance interest calculated and stored.
      */
-    function deposit(uint256 amount, address from) external checkAddress(from) {
+    function deposit(address from, uint256 amount) external checkAddress(from) {
         require(IERC20(underlying).transferFrom(from, address(this), amount), "Transfer failed");
         if (userInfo[from].isLiqiudator) {
             uint256 _accumulatedInterest = calculateInterest();
@@ -58,7 +60,7 @@ contract Pool {
             userInfo[from] = _userInfo;
         }
 
-        IReceiptToken.mint(from, amount);
+        receiptToken.mint(from, amount);
         emit AssetDeposited(from, amount);
     }
 
@@ -66,7 +68,15 @@ contract Pool {
     /**
      * @notice Used to withdraw principal from the pool by redeming receipt token.
      */
-    function withdraw() external {}
+
+    function withdraw(address to, uint256 amount) external checkAddress(to) {
+        require(receiptToken.balanceOf(to) >= amount, "Less amount");
+        calculateInterest();
+        //UserInfo storage _userInfo = userInfo[to];
+        receiptToken.burn(to, amount);
+        require(IERC20(underlying).transferFrom(address(this), to, amount), "Transfer failed");
+        emit AssetWithdrawed(to, amount);
+    }
 
     /**
      * @notice This function is used to borrow assets from the pool
