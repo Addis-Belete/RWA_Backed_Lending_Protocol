@@ -119,6 +119,7 @@ contract Pool {
      * @dev User can borrow only <= 70% of a collateral value
      */
     function borrow(address to, uint256 amount, uint256 itemId) external checkAddress(to) {
+        require(amount > 0, "amount > 0");
         require(asset.ownerOf(itemId) == to, "Not Owner"); //This can check both if the itemId is valid and the owner is to
         require(IERC20(underlying).balanceOf(address(this)) > amount, "No liquidity");
         require(!borrowInf[to][itemId].isBorrowed, "Already Borrowed");
