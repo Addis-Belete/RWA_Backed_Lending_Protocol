@@ -42,9 +42,26 @@ contract Pool {
     uint256 internal collateralizationRatio;
     NFT internal asset;
 
+    /**
+     * @notice Emitted when asset deposited to the pool
+     * @param from The Address of the depositor
+     * @param amount The number of asset deposited
+     */
     event AssetDeposited(address indexed from, uint256 amount);
 
+    /**
+     * @notice Emitted when asset withdrawn from the pool
+     * @param to The address of the receiver
+     * @param amount The amount of asset withdrawn
+     */
     event AssetWithdrawed(address indexed to, uint256 amount);
+
+    /**
+     * @notice Emitted when a user borrowed asset from the pool
+     * @param to The address of borrower
+     * @param itemId The Id of the collateral
+     */
+    event Borrowed(address indexed to, uint256 itemId);
 
     modifier checkAddress(address _address) {
         require(_address != address(0), "Invalid address");
@@ -102,13 +119,20 @@ contract Pool {
      * @dev User can borrow only <= 70% of a collateral value
      */
     function borrow(address to, uint256 amount, uint256 itemId) external checkAddress(to) {
-        require(asset.ownerOf(itemId) == to, "Not Owner");
+        require(asset.ownerOf(itemId) == to, "Not Owner"); //This can check both if the itemId is valid and the owner is to
         require(IERC20(underlying).balanceOf(address(this)) > amount, "No liquidity");
         require(!borrowInf[to][itemId].isBorrowed, "Already Borrowed");
 
         NFT.RWA memory rwa = assets.getRWADetails(itemId);
         uint256 currentUnderlyingPrice = getLatestUnderlyingPrice();
-        require((rwa.value * collateralizationRatio) / currentUnderlyingPrice >= amount, "Insufficient collateral");
+        uint256 borrowingAmount = (rwa.value * collateralizationRatio) / currentUnderlyingPrice;
+        require(borrowingAmount >= amount, "Insufficient collateral");
+
+        borrowInfo[to][itemId] = BorrowInfo(borrowingAmount, currentUnderlyingPrice, true);
+
+        require(IERC20(underlying).transferFrom(address(this), to, borrowingAmount), "Transfer failed");
+
+        emit Borrowed(to, itemId);
     }
 
     /**
