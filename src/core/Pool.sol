@@ -30,6 +30,7 @@ contract Pool {
     //Struct the holds a borrow info
     struct BorrowInfo {
         uint256 borrowedAmount;
+        uint256 priceOfUnderlyingAtBorrowing;
         bool isBorrowed;
     }
 
@@ -38,6 +39,7 @@ contract Pool {
 
     IReceiptToken internal receiptToken;
     address internal underlying;
+    uint256 internal collateralizationRatio;
     NFT internal asset;
 
     event AssetDeposited(address indexed from, uint256 amount);
@@ -49,10 +51,16 @@ contract Pool {
         _;
     }
 
-    constructor(address _receiptTokenAddress, address _underlying, address _nftAddress) {
+    constructor(
+        address _receiptTokenAddress,
+        address _underlying,
+        address _nftAddress,
+        uint256 _collateralizationRatio
+    ) {
         receiptToken = IReceiptToken(_receiptTokenAddress);
         underlying = _underlying;
         asset = NFT(_nftAddress);
+        collateralizationRatio = _collateralizationRatio;
     }
 
     /**
@@ -91,11 +99,16 @@ contract Pool {
 
     /**
      * @notice This function is used to borrow assets from the pool
+     * @dev User can borrow only <= 70% of a collateral value
      */
     function borrow(address to, uint256 amount, uint256 itemId) external checkAddress(to) {
         require(asset.ownerOf(itemId) == to, "Not Owner");
         require(IERC20(underlying).balanceOf(address(this)) > amount, "No liquidity");
-        NFT.RWA storage rwa = realWorldAssetDetails();
+        require(!borrowInf[to][itemId].isBorrowed, "Already Borrowed");
+
+        NFT.RWA memory rwa = assets.getRWADetails(itemId);
+        uint256 currentUnderlyingPrice = getLatestUnderlyingPrice();
+        require((rwa.value * collateralizationRatio) / currentUnderlyingPrice >= amount, "Insufficient collateral");
     }
 
     /**
@@ -115,7 +128,9 @@ contract Pool {
 
     function checkYourInterest() external {}
 
-    function getLatestUnderlyingPrice() internal returns (uint256) {}
+    function getLatestUnderlyingPrice() internal returns (uint256) {
+        return 1;
+    }
 
     function calculateInterest() private returns (uint256) {}
 }
