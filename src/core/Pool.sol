@@ -33,7 +33,9 @@ contract Pool {
         bool isBorrowed;
     }
 
-    mapping(address => UserInfo) internal userInfo;
+    mapping(address => UserInfo) internal userInfo; //mapping userAddress -> UserInfo
+    mapping(address => mapping(uint256 => BorrowInfo)) internal borrowInfo; // mapping userAddress -> assetId -> BorrowInfo
+
     IReceiptToken internal receiptToken;
     address internal underlying;
     NFT internal asset;
