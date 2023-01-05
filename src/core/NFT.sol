@@ -9,7 +9,7 @@ contract NFT is ERC721URIStorage {
         uint256 value;
         uint256 mintingDate;
         address owner; //Not necessary...Will remove in the future
-        bool isActive;
+        bool isActive; //what is this
         bool isInOurOffice;
     }
 

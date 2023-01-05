@@ -27,6 +27,12 @@ contract Pool {
         uint256 interestAccumulated;
     }
 
+    //Struct the holds a borrow info
+    struct BorrowInfo {
+        uint256 borrowedAmount;
+        bool isBorrowed;
+    }
+
     mapping(address => UserInfo) internal userInfo;
     IReceiptToken internal receiptToken;
     address internal underlying;
@@ -86,6 +92,8 @@ contract Pool {
      */
     function borrow(address to, uint256 amount, uint256 itemId) external checkAddress(to) {
         require(asset.ownerOf(itemId) == to, "Not Owner");
+        require(IERC20(underlying).balanceOf(address(this)) > amount, "No liquidity");
+        NFT.RWA storage rwa = realWorldAssetDetails();
     }
 
     /**
